@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 from django.conf.global_settings import APPEND_SLASH
 
@@ -22,13 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-on_yrkv7r380xg9v7#52%9!2((8gp1md15ct8$)y0m@_hn9fw9'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-# ALLOWED_HOSTS = ['localhost','127.0.0.1']
-ALLOWED_HOSTS = ['dsjx2.pythonanywhere.com']
+ALLOWED_HOSTS = ['localhost','127.0.0.1']
+# ALLOWED_HOSTS = ['dsjx2.pythonanywhere.com']
 
 
 # Application definition
@@ -92,11 +93,15 @@ WSGI_APPLICATION = 'rh_django.wsgi.application'
 DATABASES={
     'default':{
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'recursos_humanos_db',
-        'USER': 'root',
-        'PASSWORD': 'password',
-        'HOST': '127.0.0.1',
-        'PORT': 3306,
+        # 'NAME': 'recursos_humanos_db',
+        'NAME': config('DB_NAME'),
+        # 'USER': 'root',
+        'USER':config('DB_USER'),
+        # 'PASSWORD': 'password',
+        'PASSWORD':config('DB_PASSWORD'),
+        # 'HOST': '127.0.0.1',
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT', cast=int),
         'OPTIONS':{
             'charset': 'utf8mb4',
             'init_command': "SET sql_mode='STRICT_ALL_TABLES'",
