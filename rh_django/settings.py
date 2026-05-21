@@ -12,12 +12,12 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 from decouple import config
+import os
 
 from django.conf.global_settings import APPEND_SLASH
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -26,19 +26,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', cast=bool)
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 # ALLOWED_HOSTS = ['dsjx2.pythonanywhere.com']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    #cORS PRIMERO
+    # cORS PRIMERO
     'corsheaders',
 
-    #Django Core
+    # Django Core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,7 +56,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     # cors debe ir lo mas arriba posible antes de securityMiddleware
     'corsheaders.middleware.CorsMiddleware',
-
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -64,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 ROOT_URLCONF = 'rh_django.urls'
@@ -85,29 +85,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rh_django.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-#--MySQL (PyMySQL)
-DATABASES={
-    'default':{
+# --MySQL (PyMySQL)
+DATABASES = {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
         # 'NAME': 'recursos_humanos_db',
         'NAME': config('DB_NAME'),
         # 'USER': 'root',
-        'USER':config('DB_USER'),
+        'USER': config('DB_USER'),
         # 'PASSWORD': 'password',
-        'PASSWORD':config('DB_PASSWORD'),
+        'PASSWORD': config('DB_PASSWORD'),
         # 'HOST': '127.0.0.1',
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT', cast=int),
-        'OPTIONS':{
+        'OPTIONS': {
             'charset': 'utf8mb4',
             'init_command': "SET sql_mode='STRICT_ALL_TABLES'",
 
         },
-        'CONN_MAX_AGE': 60, #CONEXIONES PERSISTENTES (DEV)
+        'CONN_MAX_AGE': 60,  # CONEXIONES PERSISTENTES (DEV)
     }
 }
 
@@ -129,7 +128,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
@@ -141,7 +139,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
@@ -149,10 +146,18 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+if not DEBUG:
+    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
+    # and renames the files with unique names for each version to support long-term caching
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # CORS
 CORS_ALLOWED_ORIGINS = [
-    "https://localhost:4200", # Angular
-    "http://localhost:5173", # React(vite)
+    "https://localhost:4200",  # Angular
+    "http://localhost:5173",  # React(vite)
 ]
 
 # No forzar slash final
